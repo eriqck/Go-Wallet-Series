@@ -46,6 +46,15 @@ func (w *wallet) Withdraw(amount float64) error {
 	return nil
 }
 
+//AddTransaction method
+func (w *wallet) AddTransaction(transactionType string, amount float64) {
+	w.transactions = append(w.transactions, transaction{
+	transactionType: transactionType,
+	amount:          amount,
+	timestamp:        time.Now(),
+	})
+}
+
 /*
 func findWallet(accountNumber string, wallets []wallet) *wallet {
 	for i := range wallets {
@@ -158,11 +167,7 @@ func main() {
 			if err != nil {
 				fmt.Println("Deposit failed!", err)
 			} else {
-				currentWallet.transactions = append(currentWallet.transactions, transaction{
-					transactionType: "Deposit",
-					amount:          deposit,
-					timestamp:       time.Now(),
-				})
+				currentWallet.AddTransaction("Deposit", deposit)
 
 				fmt.Println("Deposit successful! New balance:",
 					currentWallet.currency,
@@ -184,12 +189,7 @@ func main() {
 					currentWallet.balance)
 
 				//track successful withdraws
-				currentWallet.transactions = append(currentWallet.transactions, transaction{
-					transactionType: "Withdrawal",
-					amount:          withdraw,
-					timestamp:       time.Now(),
-				})
-
+				currentWallet.AddTransaction("Withdrawal", withdraw)
 			}
 
 		case 3:
