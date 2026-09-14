@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+var (
+	ErrInvalidAmount     = errors.New("invalid amount")
+	ErrInsufficientFunds = errors.New("insufficient funds")
+)
+
 type wallet struct {
 	balance       float64
 	currency      string
@@ -24,7 +29,7 @@ type transaction struct {
 func (w *wallet) Deposit(amount float64) error {
 
 	if amount <= 0 {
-		return errors.New("invalid deposit amount")
+		return ErrInvalidAmount
 	}
 
 	w.balance += amount
@@ -37,10 +42,10 @@ func (w *wallet) Deposit(amount float64) error {
 func (w *wallet) Withdraw(amount float64) error {
 
 	if amount <= 0 {
-		return errors.New("invalid withdrawal amount")
+		return ErrInvalidAmount
 	}
 	if amount > w.balance {
-		return errors.New("insufficient funds")
+		return ErrInsufficientFunds
 	}
 
 	w.balance -= amount
@@ -48,7 +53,7 @@ func (w *wallet) Withdraw(amount float64) error {
 	return nil
 }
 
-//AddTransaction method
+// AddTransaction method
 func (w *wallet) AddTransaction(transactionType string, amount float64) {
 	w.transactions = append(w.transactions, transaction{
 		transactionType: transactionType,
@@ -88,14 +93,14 @@ func showBalance(w *wallet) {
 }
 
 // show transactions
-func showTransactions(transactions []transaction, w *wallet) {
+func (w *wallet) showTransactions() {
 	fmt.Println()
 	fmt.Println("=====Transaction History====")
 
-	if len(transactions) == 0 {
+	if len(w.transactions) == 0 {
 		fmt.Println("No transaction yet!")
 	} else {
-		for i, t := range transactions {
+		for i, t := range w.transactions {
 			fmt.Printf("%d. %s: %s %.2f at %s\n",
 				i+1,
 				t.transactionType,
@@ -193,7 +198,7 @@ func main() {
 			showBalance(currentWallet)
 
 		case 4:
-			showTransactions(currentWallet.transactions, currentWallet)
+			currentWallet.showTransactions()
 
 		case 5:
 			fmt.Println("Goodbye!")
