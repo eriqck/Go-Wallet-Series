@@ -28,6 +28,7 @@ func (w *wallet) Deposit(amount float64) error {
 	}
 
 	w.balance += amount
+	w.AddTransaction("Deposit", amount)
 	return nil
 
 }
@@ -43,15 +44,16 @@ func (w *wallet) Withdraw(amount float64) error {
 	}
 
 	w.balance -= amount
+	w.AddTransaction("Withdrawal", amount)
 	return nil
 }
 
 //AddTransaction method
 func (w *wallet) AddTransaction(transactionType string, amount float64) {
 	w.transactions = append(w.transactions, transaction{
-	transactionType: transactionType,
-	amount:          amount,
-	timestamp:        time.Now(),
+		transactionType: transactionType,
+		amount:          amount,
+		timestamp:       time.Now(),
 	})
 }
 
@@ -167,8 +169,6 @@ func main() {
 			if err != nil {
 				fmt.Println("Deposit failed!", err)
 			} else {
-				currentWallet.AddTransaction("Deposit", deposit)
-
 				fmt.Println("Deposit successful! New balance:",
 					currentWallet.currency,
 					currentWallet.balance)
@@ -187,9 +187,6 @@ func main() {
 				fmt.Println("Withdrawal successful! New balance:",
 					currentWallet.currency,
 					currentWallet.balance)
-
-				//track successful withdraws
-				currentWallet.AddTransaction("Withdrawal", withdraw)
 			}
 
 		case 3:
