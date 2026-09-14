@@ -17,8 +17,6 @@ type wallet struct {
 type transaction struct {
 	transactionType string
 	amount          float64
-	accountNumber   string
-	owner           string
 	timestamp       time.Time
 }
 
@@ -163,8 +161,6 @@ func main() {
 				currentWallet.transactions = append(currentWallet.transactions, transaction{
 					transactionType: "Deposit",
 					amount:          deposit,
-					accountNumber:   currentWallet.accountNumber,
-					owner:           currentWallet.owner,
 					timestamp:       time.Now(),
 				})
 
@@ -191,8 +187,6 @@ func main() {
 				currentWallet.transactions = append(currentWallet.transactions, transaction{
 					transactionType: "Withdrawal",
 					amount:          withdraw,
-					accountNumber:   currentWallet.accountNumber,
-					owner:           currentWallet.owner,
 					timestamp:       time.Now(),
 				})
 
