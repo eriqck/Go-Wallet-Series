@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -118,6 +122,8 @@ func main() {
 	fmt.Println("       Welcome to the Go Wallet!")
 	fmt.Println("=========================================")
 
+	reader := bufio.NewReader(os.Stdin)
+
 	wallets := map[string]*wallet{
 		"1030942": {
 			balance:       10000,
@@ -142,8 +148,15 @@ func main() {
 	}
 
 	fmt.Println("Enter your account number:")
-	var accountNumber string
-	fmt.Scan(&accountNumber)
+
+	accountNumber, err := reader.ReadString('\n')
+
+	if err != nil {
+		fmt.Println("Account number not found!")
+		return
+	}
+
+	accountNumber = strings.TrimSpace(accountNumber)
 
 	currentWallet, exists := wallets[accountNumber]
 
@@ -158,21 +171,48 @@ func main() {
 
 		showMenu()
 
-		choice := 0
-		fmt.Print("Enter a choice: ")
-		fmt.Scan(&choice)
+		input, err := reader.ReadString('\n')
 
+		if err != nil {
+			fmt.Println("Failed to read input")
+			continue
+		}
+
+		input = strings.TrimSpace(input)
+
+		choice, err := strconv.Atoi(input)
+
+		if err != nil {
+			fmt.Println("Please enter a valid choice")
+			continue
+		}
 		switch choice {
 		case 1:
 			fmt.Print("Enter deposit amount: ")
-			var deposit float64
-			fmt.Scan(&deposit)
 
-			//recored or reject a deposit
-			err := currentWallet.Deposit(deposit)
+			input, err := reader.ReadString('\n')
 
 			if err != nil {
-				fmt.Println("Deposit failed!", err)
+				fmt.Println("Failed to read deposit Amount")
+				continue
+			}
+			input = strings.TrimSpace(input)
+			deposit, err := strconv.ParseFloat(input, 64)
+
+			if err != nil {
+				fmt.Println("Please enter a valid amount")
+				continue
+			}
+
+			//recored or reject a deposit
+			err = currentWallet.Deposit(deposit)
+
+			if err != nil {
+				if errors.Is(err, ErrInvalidAmount) {
+					fmt.Println("Deposit Amount must be greater than zero!")
+				} else {
+					fmt.Println("Deposit failed!", err)
+				}
 			} else {
 				fmt.Println("Deposit successful! New balance:",
 					currentWallet.currency,
@@ -181,13 +221,30 @@ func main() {
 
 		case 2:
 			fmt.Print("Enter withdrawal amount: ")
-			var withdraw float64
-			fmt.Scan(&withdraw)
-
-			err := currentWallet.Withdraw(withdraw)
+			input, err := reader.ReadString('\n')
 
 			if err != nil {
-				fmt.Println("Withdrawal failed!", err)
+				fmt.Println("Failed to read withdrawal amount!")
+				continue
+			}
+
+			input = strings.TrimSpace(input)
+
+			withdraw, err := strconv.ParseFloat(input, 64)
+
+			if err != nil {
+				fmt.Println("Please enter a valid amount")
+				continue
+			}
+
+			err = currentWallet.Withdraw(withdraw)
+
+			if err != nil {
+				if errors.Is(err, ErrInsufficientFunds) {
+					fmt.Println("Insufficient Funds!")
+				} else if errors.Is(err, ErrInvalidAmount) {
+					fmt.Println("Withdrawal failed!", err)
+				}
 			} else {
 				fmt.Println("Withdrawal successful! New balance:",
 					currentWallet.currency,
@@ -203,6 +260,9 @@ func main() {
 		case 5:
 			fmt.Println("Goodbye!")
 			running = false
+
+		default:
+			fmt.Println("Please enter a valid menu option")
 
 		}
 
