@@ -117,6 +117,18 @@ func (w *wallet) showTransactions() {
 	}
 }
 
+//NewWallet() that creates wallets
+
+func NewWallet(balance float64, currency, accountNumber, owner string) *wallet {
+	return &wallet{
+		balance:       balance,
+		currency:      currency,
+		accountNumber: accountNumber,
+		owner:         owner,
+	}
+
+}
+
 func main() {
 	fmt.Println("=========================================")
 	fmt.Println("       Welcome to the Go Wallet!")
@@ -125,26 +137,9 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	wallets := map[string]*wallet{
-		"1030942": {
-			balance:       10000,
-			currency:      "KES",
-			accountNumber: "1030942",
-			owner:         "Penelope",
-		},
-
-		"1030943": {
-			balance:       5000,
-			currency:      "USD",
-			accountNumber: "1030943",
-			owner:         "Girshom",
-		},
-
-		"1030944": {
-			balance:       7500,
-			currency:      "KES",
-			accountNumber: "1030944",
-			owner:         "Eric",
-		},
+		"1030942": NewWallet(10000, "KES", "1030942", "Penelope"),
+		"1030943": NewWallet(5000, "USD", "1030943", "Girshom"),
+		"1030944": NewWallet(7500, "KES", "1030944", "Eric"),
 	}
 
 	fmt.Println("Enter your account number:")
