@@ -19,15 +19,34 @@ func TestDeposit(t *testing.T) {
 }
 
 func TestDepositInvalidAmount(t *testing.T) {
-	w := NewWallet(1000, "KES", "1030943", "Eric")
-	err := w.Deposit(-100)
-
-	if !errors.Is(err, ErrInvalidAmount) {
-		t.Fatalf("Expected ErrInvalidAmount, got %v", err)
+	tests := []struct {
+		name   string
+		amount float64
+	}{
+		{
+			name:   "zero amount",
+			amount: 0,
+		},
+		{
+			name:   "negative amount",
+			amount: -100,
+		},
 	}
 
-	if w.balance != 1000 {
-		t.Errorf("Expected balance to remain 1000, got %.2f", w.balance)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			w := NewWallet(1000, "KES", "1030943", "Eric")
+			err := w.Deposit(tt.amount)
+
+			if !errors.Is(err, ErrInvalidAmount) {
+				t.Fatalf("Expected ErrInvalidAmount, got %v", err)
+			}
+
+			if w.balance != 1000 {
+				t.Errorf("Expected balance to remain 1000, got %.2f", w.balance)
+			}
+		})
 	}
 }
 
