@@ -50,17 +50,82 @@ func TestDepositInvalidAmount(t *testing.T) {
 	}
 }
 
+//function to test invalid withdrawals
+
+func TestInvalidWithdrawalAmount(t *testing.T) {
+
+	tests := []struct {
+		name   string
+		amount float64
+	}{
+		{
+			name:   "zero amount",
+			amount: 0,
+		},
+
+		{
+			name:   "negative amount",
+			amount: -100,
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			w := NewWallet(1000, "KES", "1030943", "Eric")
+			err := w.Withdraw(tt.amount)
+
+			if !errors.Is(err, ErrInvalidAmount) {
+
+				t.Errorf("expected ErrInvalidAmount, got %v", err)
+
+			}
+
+			if w.balance != 1000 {
+
+				t.Errorf("expected balance to remain 1000, got %.2f", w.balance)
+			}
+
+		})
+
+	}
+}
+
 func TestWithdrawInsufficientFunds(t *testing.T) {
-	w := NewWallet(1000, "KES", "1030943", "Eric")
-	err := w.Withdraw(1500)
 
-	if !errors.Is(err, ErrInsufficientFunds) {
-		t.Fatalf("Expected ErrInsufficientFunds, got %v", err)
+	tests := []struct {
+		name   string
+		amount float64
+	}{
+		{
+			name:   "withdraw greater than balance",
+			amount: 1500,
+		},
+		{
+			name:   "withdraw far greater than balance",
+			amount: 15000,
+		},
 	}
 
-	if w.balance != 1000 {
-		t.Errorf("Expected balance to remain the same, got %.2f", w.balance)
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			w := NewWallet(1000, "KES", "1030943", "Eric")
+			err := w.Withdraw(tt.amount)
+
+			if !errors.Is(err, ErrInsufficientFunds) {
+				t.Fatalf("Expected ErrInsufficientFunds, got %v", err)
+			}
+
+			if w.balance != 1000 {
+				t.Errorf("Expected balance to remain 1000, got %.2f", w.balance)
+			}
+		})
+
 	}
+
 }
 
 func TestWithdraw(t *testing.T) {
@@ -97,4 +162,45 @@ func TestDepositRecordTransaction(t *testing.T) {
 	if transaction.amount != 500 {
 		t.Errorf("expected transaction amount to be 1500, got %.2f", transaction.amount)
 	}
+}
+
+func TestWithdrawRecordsTransactions(t *testing.T) {
+	w := NewWallet(1000, "KES", "1030943", "Eric")
+	err := w.Withdraw(300)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	if len(w.transactions) != 1 {
+		t.Fatalf("expected 1 transaction, got %d", len(w.transactions))
+	}
+
+	transaction := w.transactions[0]
+
+	if transaction.transactionType != "Withdrawal" {
+		t.Errorf("expected transaction type to be Withdrawal, got %s", transaction.transactionType)
+	}
+
+	if transaction.amount != 300 {
+		t.Errorf("expected transaction amount to be 300, got %.2f", transaction.amount)
+	}
+}
+
+func TestFailedWithdrawalDoesNotRecordTransaction(t *testing.T) {
+	w := NewWallet(1000, "KSH", "1030943", "Eric")
+
+	err := w.Withdraw(1500)
+	if !errors.Is(err, ErrInsufficientFunds) {
+		t.Fatalf("expected ErrInsufficientFunds, got %v", err)
+	}
+
+	if len(w.transactions) != 0 {
+		t.Errorf("expected no transactions, got %d", len(w.transactions))
+	}
+
+	if w.balance != 1000 {
+		t.Errorf("expected wallet balance to remain 1000, got %.2f", w.balance)
+	}
+
 }
