@@ -7,23 +7,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	walletpkg "wallet/internal/wallet"
 )
-
-
-
-
-
-
-/*
-func findWallet(accountNumber string, wallets []wallet) *wallet {
-	for i := range wallets {
-		if wallets[i].accountNumber == accountNumber {
-			return &wallets[i]
-		}
-	}
-	return nil
-}
-*/
 
 // Display Menu
 func showMenu() {
@@ -37,35 +22,36 @@ func showMenu() {
 }
 
 // Show Balance
-func showBalance(w *wallet) {
+func showBalance(w *walletpkg.Wallet) {
 	fmt.Println("Current Balance:",
-		w.currency,
-		w.balance,
+		w.Currency(),
+		w.Balance(),
 	)
 }
 
 // show transactions
-func (w *wallet) showTransactions() {
+func showTransactions(w *walletpkg.Wallet) {
 	fmt.Println()
-	fmt.Println("=====Transaction History====")
+	fmt.Println("===== Transaction History =====")
 
-	if len(w.transactions) == 0 {
+	transactions := w.Transactions()
+
+	if len(transactions) == 0 {
 		fmt.Println("No transaction yet!")
-	} else {
-		for i, t := range w.transactions {
-			fmt.Printf("%d. %s: %s %.2f at %s\n",
-				i+1,
-				t.transactionType,
-				w.currency,
-				t.amount,
-				t.timestamp.Format("2006-01-02 15:04:05"),
-			)
+		return
+	}
 
-		}
+	for i, t := range transactions {
+		fmt.Printf(
+			"%d. %s: %s %.2f at %s\n",
+			i+1,
+			t.TransactionType,
+			w.Currency(),
+			t.Amount,
+			t.Timestamp.Format("2006-01-02 15:04:05"),
+		)
 	}
 }
-
-
 
 func main() {
 	fmt.Println("=========================================")
@@ -74,10 +60,10 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	wallets := map[string]*wallet{
-		"1030942": NewWallet(10000, "KES", "1030942", "Penelope"),
-		"1030943": NewWallet(5000, "USD", "1030943", "Girshom"),
-		"1030944": NewWallet(7500, "KES", "1030944", "Eric"),
+	wallets := map[string]*walletpkg.Wallet{
+		"1030942": walletpkg.NewWallet(10000, "KES", "1030942", "Penelope"),
+		"1030943": walletpkg.NewWallet(5000, "USD", "1030943", "Girshom"),
+		"1030944": walletpkg.NewWallet(7500, "KES", "1030944", "Eric"),
 	}
 
 	fmt.Println("Enter your account number:")
@@ -141,15 +127,15 @@ func main() {
 			err = currentWallet.Deposit(deposit)
 
 			if err != nil {
-				if errors.Is(err, ErrInvalidAmount) {
+				if errors.Is(err, walletpkg.ErrInvalidAmount) {
 					fmt.Println("Deposit Amount must be greater than zero!")
 				} else {
 					fmt.Println("Deposit failed!", err)
 				}
 			} else {
 				fmt.Println("Deposit successful! New balance:",
-					currentWallet.currency,
-					currentWallet.balance)
+					currentWallet.Currency(),
+					currentWallet.Balance())
 			}
 
 		case 2:
@@ -173,22 +159,22 @@ func main() {
 			err = currentWallet.Withdraw(withdraw)
 
 			if err != nil {
-				if errors.Is(err, ErrInsufficientFunds) {
+				if errors.Is(err, walletpkg.ErrInsufficientFunds) {
 					fmt.Println("Insufficient Funds!")
-				} else if errors.Is(err, ErrInvalidAmount) {
+				} else if errors.Is(err, walletpkg.ErrInvalidAmount) {
 					fmt.Println("Withdrawal failed!", err)
 				}
 			} else {
 				fmt.Println("Withdrawal successful! New balance:",
-					currentWallet.currency,
-					currentWallet.balance)
+					currentWallet.Currency(),
+					currentWallet.Balance())
 			}
 
 		case 3:
 			showBalance(currentWallet)
 
 		case 4:
-			currentWallet.showTransactions()
+			showTransactions(currentWallet)
 
 		case 5:
 			fmt.Println("Goodbye!")

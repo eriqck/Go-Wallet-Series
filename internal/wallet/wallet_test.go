@@ -1,4 +1,4 @@
-package main
+package wallet
 
 import (
 	"errors"
@@ -155,12 +155,12 @@ func TestDepositRecordTransaction(t *testing.T) {
 
 	transaction := w.transactions[0]
 
-	if transaction.transactionType != "Deposit" {
-		t.Errorf("expected a deposit type transaction, got %s", transaction.transactionType)
+	if transaction.TransactionType != "Deposit" {
+		t.Errorf("expected a deposit type transaction, got %s", transaction.TransactionType)
 	}
 
-	if transaction.amount != 500 {
-		t.Errorf("expected transaction amount to be 1500, got %.2f", transaction.amount)
+	if transaction.Amount != 500 {
+		t.Errorf("expected transaction amount to be 1500, got %.2f", transaction.Amount)
 	}
 }
 
@@ -178,12 +178,12 @@ func TestWithdrawRecordsTransactions(t *testing.T) {
 
 	transaction := w.transactions[0]
 
-	if transaction.transactionType != "Withdrawal" {
-		t.Errorf("expected transaction type to be Withdrawal, got %s", transaction.transactionType)
+	if transaction.TransactionType != "Withdrawal" {
+		t.Errorf("expected transaction type to be Withdrawal, got %s", transaction.TransactionType)
 	}
 
-	if transaction.amount != 300 {
-		t.Errorf("expected transaction amount to be 300, got %.2f", transaction.amount)
+	if transaction.Amount != 300 {
+		t.Errorf("expected transaction amount to be 300, got %.2f", transaction.Amount)
 	}
 }
 
