@@ -43,7 +43,7 @@ func showTransactions(w *walletpkg.Wallet) {
 
 	for i, t := range transactions {
 		fmt.Printf(
-			"%d. %s: %s %.2f at %s\n",
+			"%d. %s: %s %d at %s\n",
 			i+1,
 			t.TransactionType,
 			w.Currency(),
@@ -116,7 +116,7 @@ func main() {
 				continue
 			}
 			input = strings.TrimSpace(input)
-			deposit, err := strconv.ParseFloat(input, 64)
+			deposit, err := strconv.ParseInt(input, 10, 64)
 
 			if err != nil {
 				fmt.Println("Please enter a valid amount")
@@ -149,7 +149,7 @@ func main() {
 
 			input = strings.TrimSpace(input)
 
-			withdraw, err := strconv.ParseFloat(input, 64)
+			withdraw, err := strconv.ParseInt(input, 10, 64)
 
 			if err != nil {
 				fmt.Println("Please enter a valid amount")

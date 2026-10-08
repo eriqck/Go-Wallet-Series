@@ -11,7 +11,7 @@ var (
 )
 
 type Wallet struct {
-	balance       float64
+	balance       int64
 	currency      string
 	accountNumber string
 	owner         string
@@ -20,11 +20,11 @@ type Wallet struct {
 
 type Transaction struct {
 	TransactionType string
-	Amount          float64
+	Amount          int64
 	Timestamp       time.Time
 }
 
-func NewWallet(balance float64, currency, accountNumber, owner string) *Wallet {
+func NewWallet(balance int64, currency, accountNumber, owner string) *Wallet {
 	return &Wallet{
 		balance:       balance,
 		currency:      currency,
@@ -37,7 +37,7 @@ func (w *Wallet) Currency() string {
 	return w.currency
 }
 
-func (w *Wallet) Balance() float64 {
+func (w *Wallet) Balance() int64 {
 	return w.balance
 }
 
@@ -53,7 +53,7 @@ func (w *Wallet) Transactions() []Transaction {
 	return w.transactions
 }
 
-func (w *Wallet) Deposit(amount float64) error {
+func (w *Wallet) Deposit(amount int64) error {
 	if amount <= 0 {
 		return ErrInvalidAmount
 	}
@@ -64,7 +64,7 @@ func (w *Wallet) Deposit(amount float64) error {
 	return nil
 }
 
-func (w *Wallet) Withdraw(amount float64) error {
+func (w *Wallet) Withdraw(amount int64) error {
 	if amount <= 0 {
 		return ErrInvalidAmount
 	}
@@ -79,7 +79,7 @@ func (w *Wallet) Withdraw(amount float64) error {
 	return nil
 }
 
-func (w *Wallet) AddTransaction(transactionType string, amount float64) {
+func (w *Wallet) AddTransaction(transactionType string, amount int64) {
 	w.transactions = append(w.transactions, Transaction{
 		TransactionType: transactionType,
 		Amount:          amount,

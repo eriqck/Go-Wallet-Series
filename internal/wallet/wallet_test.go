@@ -21,7 +21,7 @@ func TestDeposit(t *testing.T) {
 func TestDepositInvalidAmount(t *testing.T) {
 	tests := []struct {
 		name   string
-		amount float64
+		amount int64
 	}{
 		{
 			name:   "zero amount",
@@ -44,7 +44,7 @@ func TestDepositInvalidAmount(t *testing.T) {
 			}
 
 			if w.balance != 1000 {
-				t.Errorf("Expected balance to remain 1000, got %.2f", w.balance)
+				t.Errorf("Expected balance to remain 1000, got %d", w.balance)
 			}
 		})
 	}
@@ -56,7 +56,7 @@ func TestInvalidWithdrawalAmount(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		amount float64
+		amount int64
 	}{
 		{
 			name:   "zero amount",
@@ -84,7 +84,7 @@ func TestInvalidWithdrawalAmount(t *testing.T) {
 
 			if w.balance != 1000 {
 
-				t.Errorf("expected balance to remain 1000, got %.2f", w.balance)
+				t.Errorf("expected balance to remain 1000, got %d", w.balance)
 			}
 
 		})
@@ -96,7 +96,7 @@ func TestWithdrawInsufficientFunds(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		amount float64
+		amount int64
 	}{
 		{
 			name:   "withdraw greater than balance",
@@ -120,7 +120,7 @@ func TestWithdrawInsufficientFunds(t *testing.T) {
 			}
 
 			if w.balance != 1000 {
-				t.Errorf("Expected balance to remain 1000, got %.2f", w.balance)
+				t.Errorf("Expected balance to remain 1000, got %d", w.balance)
 			}
 		})
 
@@ -137,7 +137,7 @@ func TestWithdraw(t *testing.T) {
 	}
 
 	if w.balance != 1300 {
-		t.Errorf("Expected balance to be 1300, got %.2f", w.balance)
+		t.Errorf("Expected balance to be 1300, got %d", w.balance)
 	}
 
 }
@@ -160,7 +160,7 @@ func TestDepositRecordTransaction(t *testing.T) {
 	}
 
 	if transaction.Amount != 500 {
-		t.Errorf("expected transaction amount to be 1500, got %.2f", transaction.Amount)
+		t.Errorf("expected transaction amount to be 500, got %d", transaction.Amount)
 	}
 }
 
@@ -183,7 +183,7 @@ func TestWithdrawRecordsTransactions(t *testing.T) {
 	}
 
 	if transaction.Amount != 300 {
-		t.Errorf("expected transaction amount to be 300, got %.2f", transaction.Amount)
+		t.Errorf("expected transaction amount to be 300, got %d", transaction.Amount)
 	}
 }
 
@@ -200,7 +200,40 @@ func TestFailedWithdrawalDoesNotRecordTransaction(t *testing.T) {
 	}
 
 	if w.balance != 1000 {
-		t.Errorf("expected wallet balance to remain 1000, got %.2f", w.balance)
+		t.Errorf("expected wallet balance to remain 1000, got %d", w.balance)
+	}
+
+}
+
+func TestTransactionHistory(t *testing.T) {
+	w := NewWallet(1000, "KES", "1030943", "Eric")
+
+	if err := w.Deposit(500); err != nil {
+		t.Fatalf("expected no error, got %v", err)
+
+	}
+	if err := w.Withdraw(200); err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	if len(w.transactions) != 2 {
+		t.Fatalf("expected 2 transactions, got %d", len(w.transactions))
+	}
+
+	if w.transactions[0].TransactionType != "Deposit" {
+		t.Errorf("expected type deposit, got %s", w.transactions[0].TransactionType)
+	}
+
+	if w.transactions[0].Amount != 500 {
+		t.Errorf("expected transaction amount to be 500, got %d", w.transactions[0].Amount)
+	}
+
+	if w.transactions[1].TransactionType != "Withdrawal" {
+		t.Errorf("expected type Withdrawal, got %s", w.transactions[1].TransactionType)
+	}
+
+	if w.transactions[1].Amount != 200 {
+		t.Errorf("expected transaction amount to be 200, got %d", w.transactions[1].Amount)
 	}
 
 }
